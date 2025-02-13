@@ -1,0 +1,101 @@
+import java.util.*;
+
+// Abstraction: Employee is an abstract class that defines common properties and behaviors for all employees
+abstract class Employee {
+    // Encapsulation: Private fields to ensure data hiding
+    private String employeeId, lastName, firstName, position;
+    private double basicSalary, riceSubsidy, phoneAllowance, clothingAllowance, grossSemiMonthlyRate;
+    
+    public Employee(String employeeId, String lastName, String firstName, String position,
+                    double basicSalary, double riceSubsidy, double phoneAllowance,
+                    double clothingAllowance, double grossSemiMonthlyRate) {
+        this.employeeId = employeeId;
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.position = position;
+        this.basicSalary = basicSalary;
+        this.riceSubsidy = riceSubsidy;
+        this.phoneAllowance = phoneAllowance;
+        this.clothingAllowance = clothingAllowance;
+        this.grossSemiMonthlyRate = grossSemiMonthlyRate;
+    }
+    
+    public double computeSSS() {
+        return basicSalary * 0.045; // Example: 4.5% of salary
+    }
+    
+    public double computePhilHealth() {
+        return basicSalary * 0.035; // Example: 3.5% of salary
+    }
+    
+    public double computePagIbig() {
+        return 100; // Fixed Pag-ibig contribution
+    }
+    
+    // Abstraction: The method is defined but implemented in subclasses
+    public abstract double computeWithholdingTax();
+    
+    public double computeNetSalary() {
+        return grossSemiMonthlyRate - (computeSSS() + computePhilHealth() + computePagIbig() + computeWithholdingTax());
+    }
+    
+    public void printPayrollDetails() {
+        System.out.println("Employee: " + firstName + " " + lastName);
+        System.out.println("Position: " + position);
+        System.out.println("Basic Salary: " + basicSalary);
+        System.out.println("SSS Deduction: " + computeSSS());
+        System.out.println("PhilHealth Deduction: " + computePhilHealth());
+        System.out.println("Pag-IBIG Deduction: " + computePagIbig());
+        System.out.println("Withholding Tax: " + computeWithholdingTax());
+        System.out.println("Net Salary: " + computeNetSalary());
+        System.out.println("---------------------------");
+    }
+}
+
+// Inheritance: RegularEmployee extends Employee and inherits its properties and methods
+class RegularEmployee extends Employee {
+    public RegularEmployee(String employeeId, String lastName, String firstName, String position,
+                           double basicSalary, double riceSubsidy, double phoneAllowance,
+                           double clothingAllowance, double grossSemiMonthlyRate) {
+        super(employeeId, lastName, firstName, position, basicSalary, riceSubsidy, phoneAllowance, clothingAllowance, grossSemiMonthlyRate);
+    }
+    
+    @Override // Polymorphism: Different implementation of computeWithholdingTax for regular employees
+    public double computeWithholdingTax() {
+        double taxableIncome = super.computeNetSalary();
+        if (taxableIncome <= 25000) {
+            return taxableIncome * 0.10;
+        } else {
+            return taxableIncome * 0.20;
+        }
+    }
+}
+
+// Inheritance: ProbationaryEmployee extends Employee and inherits its properties and methods
+class ProbationaryEmployee extends Employee {
+    public ProbationaryEmployee(String employeeId, String lastName, String firstName, String position,
+                                double basicSalary, double riceSubsidy, double phoneAllowance,
+                                double clothingAllowance, double grossSemiMonthlyRate) {
+        super(employeeId, lastName, firstName, position, basicSalary, riceSubsidy, phoneAllowance, clothingAllowance, grossSemiMonthlyRate);
+    }
+    
+    @Override // Polymorphism: Different implementation of computeWithholdingTax for probationary employees
+    public double computeWithholdingTax() {
+        double taxableIncome = super.computeNetSalary();
+        return taxableIncome * 0.08; // Lower tax rate for probationary employees
+    }
+}
+
+public class MotorPHPayroll {
+    public static void main(String[] args) {
+        List<Employee> employees = new ArrayList<>();
+        
+        // Polymorphism: Different types of employees handled using the same Employee reference
+        employees.add(new RegularEmployee("10001", "Garcia", "Manuel III", "CEO", 90000, 1500, 2000, 1000, 45000));
+        employees.add(new RegularEmployee("10002", "Lim", "Antonio", "COO", 60000, 1500, 2000, 1000, 30000));
+        employees.add(new ProbationaryEmployee("10003", "Santos", "Maria", "Engineer", 30000, 1500, 2000, 1000, 15000));
+        
+        for (Employee emp : employees) {
+            emp.printPayrollDetails();
+        }
+    }
